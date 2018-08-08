@@ -1,11 +1,16 @@
 {
-  "name": "startrail-block-cache",
+  "name": "startrail",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --config .prettierrc --write '**/*'"
   },
   "author": "",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "async": "^2.6.1",
+    "prettier": "^1.14.1"
+  }
 }
