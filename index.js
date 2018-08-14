@@ -10,9 +10,11 @@ class Startrail {
     this.dht = dht;
 
     this.cacheQueue = new CacheQueue(this);
+    console.log("Startrail cache queue started")
   }
 
   process({ cid, peer }, cb) {
+    console.log("Startrail - process :", cid)
     waterfall(
       [
         // update popularity
