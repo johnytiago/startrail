@@ -5,9 +5,9 @@
   "main": "src/index.js",
   "scripts": {
     "style": "prettier --config .prettierrc --write '**/*'",
-    "test": "mocha --recursive --exit",
-    "test:ci": "npm run style && npm test",
-    "test:debug": "mocha debug test/**"
+    "test": "nyc --reporter=html --reporter=text-summary mocha --recursive --exit",
+    "test:ci": "NODE_ENV=dev npm run style && npm test",
+    "test:debug": "NODE_ENV=dev mocha debug test/**"
   },
   "husky": {
     "hooks": {
@@ -29,7 +29,11 @@
   },
   "dependencies": {
     "async": "^2.6.1",
-    "debug": "^3.1.0"
+    "debug": "^3.1.0",
+    "lodash": "^4.17.15",
+    "peer-id": "^0.13.2",
+    "peer-info": "^0.16.0",
+    "proxyquire": "^2.1.1"
   },
   "devDependencies": {
     "@commitlint/cli": "^8.1.0",
@@ -41,9 +45,30 @@
     "husky": "^1.3.0",
     "lint-staged": "^8.1.0",
     "mocha": "^6.2.0",
+    "nyc": "^14.1.1",
     "pre-commit": "^1.2.2",
     "prettier": "^1.18.2",
     "sinon": "^6.3.5"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "lines": 50,
+    "statements": 50,
+    "branches": 50,
+    "functions": 100,
+    "exclude": [
+      "test/**",
+      "reports/*",
+      "npm-debug.log",
+      ".nyc_output",
+      "commitlint.config.js"
+    ],
+    "report-dir": "./reports",
+    "cache": true,
+    "all": true,
+    "extension": [
+      ".js"
+    ]
   },
   "engines": {
     "node": ">=10"
