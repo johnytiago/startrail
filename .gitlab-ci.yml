@@ -1,0 +1,69 @@
+stages:
+  - test
+  - release
+  - publish
+
+variables:
+  IPFS_REPO_PATH: ${CI_API_V4_URL}/projects/${CI_PROJECT_NAMESPACE}%2Fjs-ipfs
+
+test:
+  stage: test
+  image: node:11-alpine
+  tags:
+    - docker
+  script:
+    - npm i
+    - npm run test:ci
+
+trigger-ipfs-build:
+  stage: release
+  image: appropriate/curl:latest
+  tags:
+    - docker
+  variables:
+    # Disable git usage
+    GIT_STRATEGY: none
+  script:
+    - echo $IPFS_REPO_PATH
+    - curl --request POST
+      --form "token=${CI_JOB_TOKEN}"
+      --form ref=master
+      ${IPFS_REPO_PATH}/trigger/pipeline
+  only:
+  - master
+
+release:patch:
+  image: node:11-alpine
+  stage: publish
+  script:
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - npm version patch
+    - npm publish
+  stage: release
+  only:
+    - master
+  when: manual
+
+release:minor:
+  image: node:11-alpine
+  stage: publish
+  script:
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - npm version minor
+    - npm publish
+  stage: release
+  only:
+    - master
+  when: manual
+
+release:major:
+  image: node:11-alpine
+  stage: publish
+  script:
+    - echo '//registry.npmjs.org/:_authToken=${NPM_TOKEN}'>.npmrc
+    - npm version major
+    - npm publish
+  stage: release
+  only:
+    - master
+  when: manual

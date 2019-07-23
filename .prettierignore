@@ -2,7 +2,10 @@ node_modules
 dist
 build
 logfile
+reports
 
+.gitlab-ci.yml
+.nyc_output
 .git/*
 .DS_Store
 .travis.yml
@@ -26,7 +29,6 @@ license
 yarn.lock
 Dockerfile.*
 Dockerfile
-test
 
 _env*
 .env.*

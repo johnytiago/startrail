@@ -4,10 +4,12 @@
   "description": "Block Cache for js-ipfs",
   "main": "src/index.js",
   "scripts": {
-    "style": "prettier --config .prettierrc --write '**/*'",
+    "fmt": "prettier --write '**/*'",
+    "fmt:ci": "prettier -l '**/*'",
+    "style": "eslint .",
     "test": "nyc --reporter=html --reporter=text-summary mocha --recursive --exit",
-    "test:ci": "NODE_ENV=dev npm run style && npm test",
-    "test:debug": "NODE_ENV=dev mocha debug test/**"
+    "test:ci": "npm run style && npm run fmt:ci && npm test",
+    "test:debug": "mocha debug test/**"
   },
   "husky": {
     "hooks": {
@@ -22,8 +24,8 @@
   },
   "lint-staged": {
     "*.js": [
-      "eslint --fix",
-      "prettier --write",
+      "npm run style",
+      "npm run fmt",
       "git add"
     ]
   },
