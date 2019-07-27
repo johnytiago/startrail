@@ -4,7 +4,7 @@ const async = require('async');
 const log = require('./util/logger');
 const popular = require('./calculate-popularity');
 
-function process(self) {
+function process(blockstorage, bitswap, libp2p) {
   return ({ cid, peer }, cb) => {
     log.trace(`Processing block: ${cid}, from: ${peer.id._idB58String}`);
 
@@ -13,7 +13,7 @@ function process(self) {
     async.waterfall(
       [
         async.constant(cid),
-        self._repo.blocks.has,
+        blockstorage.has,
         (has, cb) => {
           if (has) {
             // TODO Serve block
@@ -21,7 +21,7 @@ function process(self) {
             return cb(null, 'CHANGE_ME');
           }
 
-          self._bitswap.get(cid, (err, block) => {
+          bitswap.get(cid, (err, block) => {
             if (err) {
               log.debug('Error getting block from bitswap:', err);
               return cb(err);
@@ -30,7 +30,7 @@ function process(self) {
             log.info('Got from bitswap');
             // TODO: delay provide for aftewards
             // dht set ourselves as providers of the block
-            self._bitswap._libp2p.contentRouting.provide(cid, err => {
+            libp2p.contentRouting.provide(cid, err => {
               if (err) {
                 log.debug('Error providing block:', err);
                 // Don't break, got block, serve it

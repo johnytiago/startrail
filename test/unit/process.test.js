@@ -1,6 +1,5 @@
 'use strict';
 
-const _ = require('lodash');
 const sinon = require('sinon');
 const { describe, it, before, afterEach } = require('mocha');
 const { expect } = require('chai');
@@ -31,9 +30,9 @@ describe('Process tests', async () => {
   });
 
   it('should break when Bitswap fails to fetch', done => {
-    _.set(ipfsStub, '_repo.blocks.has', stubCb(null, false));
-    _.set(ipfsStub, '_bitswap.get', stubCb('GET_FAIL'));
-    process = Process(ipfsStub);
+    const blockstorage = { has: stubCb(null, false) };
+    const bitswap = { get: stubCb('GET_FAIL') };
+    process = Process(blockstorage, bitswap);
 
     process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
       expect(err).to.be.equal('GET_FAIL');
@@ -42,8 +41,9 @@ describe('Process tests', async () => {
   });
 
   it('should return block when BlockStore has block', done => {
-    _.set(ipfsStub, '_repo.blocks.has', stubCb(null, true));
-    process = Process(ipfsStub);
+    const blockstorage = { has: stubCb(null, true) };
+
+    process = Process(blockstorage);
 
     process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
       expect(err).to.be.null;
@@ -53,15 +53,11 @@ describe('Process tests', async () => {
   });
 
   it('should return block when fetching from network - Provide fails', done => {
-    _.set(ipfsStub, '_repo.blocks.has', stubCb(null, false));
-    _.set(ipfsStub, '_bitswap.get', stubCb(null, 'GET_SUCCESS'));
-    _.set(
-      ipfsStub,
-      '_bitswap._libp2p.contentRouting.provide',
-      stubCb('PROVIDE_FAIL')
-    );
+    const blockstorage = { has: stubCb(null, false) };
+    const bitswap = { get: stubCb(null, 'GET_SUCCESS') };
+    const libp2p = { contentRouting: { provide: stubCb('PROVIDE_ERROR') } };
 
-    process = Process(ipfsStub);
+    process = Process(blockstorage, bitswap, libp2p);
 
     process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
       expect(err).to.be.null;
@@ -71,11 +67,11 @@ describe('Process tests', async () => {
   });
 
   it('should return block when fetching from network - Provide success', done => {
-    _.set(ipfsStub, '_repo.blocks.has', stubCb(null, false));
-    _.set(ipfsStub, '_bitswap.get', stubCb(null, 'GET_SUCCESS'));
-    _.set(ipfsStub, '_bitswap._libp2p.contentRouting.provide', stubCb());
+    const blockstorage = { has: stubCb(null, false) };
+    const bitswap = { get: stubCb(null, 'GET_SUCCESS') };
+    const libp2p = { contentRouting: { provide: stubCb() } };
 
-    process = Process(ipfsStub);
+    process = Process(blockstorage, bitswap, libp2p);
 
     process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
       expect(err).to.be.null;
