@@ -47,35 +47,35 @@ describe('Process tests', async () => {
 
     process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
       expect(err).to.be.null;
-      expect(res).to.be.equal('CHANGE_ME');
+      expect(res).to.be.true;
       done();
     });
   });
 
   it('should return block when fetching from network - Provide fails', done => {
     const blockstorage = { has: stubCb(null, false) };
-    const bitswap = { get: stubCb(null, 'GET_SUCCESS') };
+    const bitswap = { get: stubCb(null, 'GET_BLOCK_SUCCESS') };
     const libp2p = { contentRouting: { provide: stubCb('PROVIDE_ERROR') } };
 
     process = Process(blockstorage, bitswap, libp2p);
 
     process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
       expect(err).to.be.null;
-      expect(res).to.be.equal('GET_SUCCESS');
+      expect(res).to.be.true;
       done();
     });
   });
 
   it('should return block when fetching from network - Provide success', done => {
     const blockstorage = { has: stubCb(null, false) };
-    const bitswap = { get: stubCb(null, 'GET_SUCCESS') };
+    const bitswap = { get: stubCb(null, 'GET_BLOCK_SUCCESS') };
     const libp2p = { contentRouting: { provide: stubCb() } };
 
     process = Process(blockstorage, bitswap, libp2p);
 
     process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
       expect(err).to.be.null;
-      expect(res).to.be.equal('GET_SUCCESS');
+      expect(res).to.be.true;
       done();
     });
   });

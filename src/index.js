@@ -16,9 +16,8 @@ function process(blockstorage, bitswap, libp2p) {
         blockstorage.has,
         (has, cb) => {
           if (has) {
-            // TODO Serve block
             log.info('Block found in cache');
-            return cb(null, 'CHANGE_ME');
+            return cb(null, has);
           }
 
           bitswap.get(cid, (err, block) => {
@@ -28,17 +27,13 @@ function process(blockstorage, bitswap, libp2p) {
             }
 
             log.info('Got from bitswap');
-            // TODO: delay provide for aftewards
-            // dht set ourselves as providers of the block
             libp2p.contentRouting.provide(cid, err => {
               if (err) {
                 log.debug('Error providing block:', err);
-                // Don't break, got block, serve it
               }
 
               log.info('Providing block');
-              // TODO: Serve block
-              return cb(null, block);
+              return cb(null, true);
             });
           });
         }
