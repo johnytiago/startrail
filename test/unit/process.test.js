@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const sinon = require('sinon');
 const { describe, it, before, afterEach } = require('mocha');
 const { expect } = require('chai');
@@ -30,9 +31,22 @@ describe('process tests', async () => {
     });
   });
 
+  it('should break if already on Bitswap', done => {
+    const blockstorage = { has: stubCb(null, false) };
+    let bitswap = {};
+    _.set(bitswap, 'wm.wantlist.contains', () => true);
+    startrail = new Startrail(blockstorage, bitswap);
+
+    startrail.process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
+      expect(err).to.be.null;
+      done();
+    });
+  });
+
   it('should break when Bitswap fails to fetch', done => {
     const blockstorage = { has: stubCb(null, false) };
     const bitswap = { get: stubCb('GET_FAIL') };
+    _.set(bitswap, 'wm.wantlist.contains', () => false);
     startrail = new Startrail(blockstorage, bitswap);
 
     startrail.process({ cid: 'benfica', peer: mockPeer }, (err, res) => {
@@ -56,6 +70,7 @@ describe('process tests', async () => {
   it('should return block when fetching from network - Provide fails', done => {
     const blockstorage = { has: stubCb(null, false) };
     const bitswap = { get: stubCb(null, 'GET_BLOCK_SUCCESS') };
+    _.set(bitswap, 'wm.wantlist.contains', () => false);
     const libp2p = { contentRouting: { provide: stubCb('PROVIDE_ERROR') } };
 
     startrail = new Startrail(blockstorage, bitswap, libp2p);
@@ -70,6 +85,7 @@ describe('process tests', async () => {
   it('should return block when fetching from network - Provide success', done => {
     const blockstorage = { has: stubCb(null, false) };
     const bitswap = { get: stubCb(null, 'GET_BLOCK_SUCCESS') };
+    _.set(bitswap, 'wm.wantlist.contains', () => false);
     const libp2p = { contentRouting: { provide: stubCb() } };
 
     startrail = new Startrail(blockstorage, bitswap, libp2p);

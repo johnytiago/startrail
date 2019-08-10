@@ -26,6 +26,8 @@ class Startrail {
             return cb(null, has);
           }
 
+          if (this.bitswap.wm.wantlist.contains(cid)) return cb(); // block already on wantlist
+
           this.bitswap.get(cid, (err, block) => {
             if (err) {
               log.debug('Error getting block from bitswap:', err);
