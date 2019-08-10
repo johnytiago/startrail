@@ -1,6 +1,6 @@
 {
   "name": "startrail",
-  "version": "0.1.0",
+  "version": "0.3.0",
   "description": "Block Cache for js-ipfs",
   "main": "src/index.js",
   "scripts": {
@@ -83,7 +83,7 @@
   "bugs": {
     "url": "https://github.com/johnytiago/startrail/issues"
   },
-  "homepage": "https://github.com/jonhytiago/startrail",
+  "homepage": "https://github.com/johnytiago/startrail",
   "author": "João Tiago <joaosao10@gmail.com>",
   "license": "MIT"
 }
