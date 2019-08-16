@@ -1,20 +1,26 @@
 'use strict';
 
+const _ = require('lodash');
 const async = require('async');
+
 const log = require('./util/logger');
-const popular = require('./calculate-popularity');
+const PopularityManager = require('./popularity-manager');
+const config = require('./config');
 
 class Startrail {
-  constructor(blockstorage, bitswap, libp2p) {
+  constructor(blockstorage, bitswap, libp2p, options) {
+    this._options = _.merge(config, options);
     this.blockstorage = blockstorage;
     this.bitswap = bitswap;
     this.libp2p = libp2p;
+    this.pm = new PopularityManager(this._options.popularityManager);
+    this.pm.start();
   }
 
   process({ cid, peer }, cb) {
     log.trace(`Processing block: ${cid}, from: ${peer.id._idB58String}`);
 
-    if (!popular(cid)) return cb();
+    if (!this.pm.isPopular(cid)) return cb();
 
     async.waterfall(
       [
@@ -55,6 +61,11 @@ class Startrail {
         return cb(null, result);
       }
     );
+  }
+
+  stop() {
+    debugger;
+    this.pm.stop();
   }
 }
 
