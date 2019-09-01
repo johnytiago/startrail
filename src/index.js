@@ -18,7 +18,12 @@ class Startrail {
   }
 
   process({ cid, peer }, cb) {
-    log.trace(`Processing block: ${cid}, from: ${peer.id._idB58String}`);
+    const cidStr = cid.toString('base58btc');
+
+    log.info('Processing block: %j', {
+      cid: cidStr,
+      from: peer.id._idB58String
+    });
 
     if (!this.pm.isPopular(cid)) return cb();
 
@@ -28,7 +33,7 @@ class Startrail {
         this.blockstorage.has,
         (has, cb) => {
           if (has) {
-            log.info('Block found in cache');
+            log.debug(`Block found in cache: ${cidStr}`);
             return cb(null, has);
           }
 
@@ -36,17 +41,15 @@ class Startrail {
 
           this.bitswap.get(cid, (err, block) => {
             if (err) {
-              log.debug('Error getting block from bitswap:', err);
+              log.err('Error getting block from bitswap: %j', err);
               return cb(err);
             }
 
-            log.info('Got from bitswap');
+            log.debug(`Fetched from bitswap: ${cidStr}`);
             this.libp2p.contentRouting.provide(cid, err => {
-              if (err) {
-                log.debug('Error providing block:', err);
-              }
-
-              log.info('Providing block');
+              err
+                ? log.err('Error providing block: %j', err)
+                : log.debug(`Providing block: ${cidStr}`);
               return cb(null, true);
             });
           });
@@ -54,7 +57,11 @@ class Startrail {
       ],
       (err, result) => {
         if (err) {
-          log.debug('ERROR:', err);
+          log.err('Error processing block: %j', {
+            cid: cidStr,
+            from: peer.id._idB58String,
+            err
+          });
           return cb(err);
         }
 

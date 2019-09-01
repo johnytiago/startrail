@@ -17,7 +17,7 @@ describe('process tests', async () => {
   let blockstorage = { has: stubCb(null, false) };
   let bitswap = {};
   let libp2p = {};
-  const mockPeer = { id: { _idB58String: '' } };
+  const mockPeer = { id: { _idB58String: 'This is a mocked peerId' } };
 
   before(async () => {
     const hash = await multihashing(Buffer.from('Benfica'), 'sha2-256');

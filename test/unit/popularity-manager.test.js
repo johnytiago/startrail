@@ -16,7 +16,7 @@ describe('popularity-manager tests', async () => {
   let cid;
 
   const config = {
-    sampleDuration: 100,
+    sampleDuration: 10,
     windowSize: 3,
     cacheThreshold: 2
   };
@@ -35,14 +35,14 @@ describe('popularity-manager tests', async () => {
     sinon.restore();
   });
 
-  it('should execute _reset for every sample window', function(done) {
+  it('should execute _update for every sample window', function(done) {
     this.timeout(4000);
     const spy = sinon.spy(pm, '_update');
     pm.start();
     setTimeout(() => {
       expect(spy.callCount).to.be.equal(3);
       done();
-    }, config.windowSize * config.sampleDuration + 100);
+    }, config.windowSize * config.sampleDuration + config.sampleDuration);
   });
 
   it('should delete old samples', function(done) {
@@ -61,5 +61,18 @@ describe('popularity-manager tests', async () => {
     expect(pm.isPopular(cid)).to.be.false;
     expect(pm.isPopular(cid)).to.be.true;
     done();
+  });
+
+  it('should be not be popular after window closes- cacheThreshold: 2 ', function(done) {
+    this.timeout(4000);
+    pm.start();
+
+    expect(pm.isPopular(cid)).to.be.false;
+    expect(pm.isPopular(cid)).to.be.true;
+
+    setTimeout(() => {
+      expect(pm.isPopular(cid)).to.be.false;
+      done();
+    }, 2 * config.windowSize * config.sampleDuration);
   });
 });
