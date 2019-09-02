@@ -1,6 +1,6 @@
 {
   "name": "startrail",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "Block Cache for js-ipfs",
   "main": "src/index.js",
   "scripts": {
