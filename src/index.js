@@ -9,7 +9,8 @@ const config = require('./config');
 
 class Startrail {
   constructor(blockstorage, bitswap, libp2p, options) {
-    this._options = _.merge(config, options);
+    this.id = libp2p.peerInfo.id._idB58String;
+    this._options = _.merge(config, options, { id: this.id });
     this.blockstorage = blockstorage;
     this.bitswap = bitswap;
     this.libp2p = libp2p;
@@ -21,6 +22,7 @@ class Startrail {
     const cidStr = cid.toString('base58btc');
 
     log.info('Processing block: %j', {
+      id: this.id,
       cid: cidStr,
       from: peer.id._idB58String
     });
