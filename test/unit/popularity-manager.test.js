@@ -18,7 +18,8 @@ describe('popularity-manager tests', async () => {
   const config = {
     sampleDuration: 10,
     windowSize: 3,
-    cacheThreshold: 2
+    cacheThreshold: 2,
+    id: 'This is a mocked peerId' // used to test logs
   };
 
   before(async () => {
