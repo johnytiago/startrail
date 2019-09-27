@@ -46,7 +46,7 @@ class PopularityManager {
     const num_blocks_cached = Object.keys(
       Object.assign(...this.samples.slice(-this._options.windowSize))
     ).length;
-    log.trace('Blocks in cache %j', { id: this.id, num_blocks_cached });
+    log.trace('blocks_in_cache %j', { id: this.id, num_blocks_cached });
 
     this._nextTimeout();
   }
