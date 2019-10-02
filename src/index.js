@@ -73,13 +73,17 @@ class Startrail {
     );
   }
 
-  async updateConfig() {
-    const newConfigs = await this.repo.config.get('Startrail');
-    if (!_.isEqual(this._options, newConfigs)) {
-      this._options = _.merge(this._options, newConfigs);
-      this.pm.updateConfig(this._options.popularityManager);
-    }
-    return;
+  updateConfig(cb) {
+    this.repo.config.get('Startrail', (err, newConfigs) => {
+      if (err) cb(err);
+
+      if (!_.isEqual(this._options, newConfigs)) {
+        this._options = _.merge(this._options, newConfigs);
+        this.pm.updateConfig(this._options.popularityManager);
+      }
+
+      cb();
+    });
   }
 
   stop() {

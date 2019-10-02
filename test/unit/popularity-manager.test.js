@@ -9,7 +9,6 @@ const CID = require('cids');
 const multihashing = require('multihashing-async');
 
 const PopularityManager = require('../../src/popularity-manager');
-const stubCb = require('../helpers/stub');
 
 describe('popularity-manager tests', async () => {
   let pm;

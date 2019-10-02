@@ -9,18 +9,17 @@ const multihashing = require('multihashing-async');
 
 const Startrail = require('../../src');
 const config = require('../../src/config');
-const stubCb = require('../helpers/stub');
 
 describe('process tests', async () => {
   let startrail;
   let cid;
 
-  const repo = {};
+  const repo = { blocks: {} };
   const bitswap = {};
   const libp2p = {};
   const mockPeer = { id: { _idB58String: 'This is a mocked peerId' } };
   libp2p.peerInfo = mockPeer;
-  repo.blocks = { has: stubCb(null, false) };
+  repo.blocks.has = sinon.fake.yields(null, false);
 
   before(async () => {
     const hash = await multihashing(Buffer.from('Benfica'), 'sha2-256');
@@ -47,24 +46,28 @@ describe('process tests', async () => {
       });
     });
 
-    it('should not update when no config', async () => {
-      const get = sinon.fake.resolves({});
-      _.set(repo, 'config.get', get);
+    it('should not update when no config', done => {
+      _.set(repo, 'config.get', sinon.fake.yields(null, {}));
 
-      await startrail.updateConfig();
-      expect(startrail.pm._options).to.deep.equal(config.popularityManager);
+      startrail.updateConfig(err => {
+        expect(err).to.not.exist;
+        expect(startrail.pm._options).to.deep.equal(config.popularityManager);
+        done();
+      });
     });
 
-    it('should not update when configs are the same', async () => {
-      const get = sinon.fake.resolves(config);
-      _.set(repo, 'config.get', get);
+    it('should not update when configs are the same', done => {
+      _.set(repo, 'config.get', sinon.fake.yields(null, config));
 
-      await startrail.updateConfig();
-      expect(startrail.pm._options).to.deep.equal(config.popularityManager);
+      startrail.updateConfig(err => {
+        expect(err).to.not.exist;
+        expect(startrail.pm._options).to.deep.equal(config.popularityManager);
+        done();
+      });
     });
 
-    it('should update when configs are different', async () => {
-      const get = sinon.fake.resolves({
+    it('should update when configs are different', done => {
+      const get = sinon.fake.yields(null, {
         popularityManager: {
           windowSize: 4,
           cacheThreshold: 4
@@ -72,11 +75,14 @@ describe('process tests', async () => {
       });
       _.set(repo, 'config.get', get);
 
-      await startrail.updateConfig();
-      expect(startrail.pm._options).to.deep.equal({
-        sampleDuration: 10 * 1000,
-        windowSize: 4,
-        cacheThreshold: 4
+      startrail.updateConfig(err => {
+        expect(err).to.not.exist;
+        expect(startrail.pm._options).to.deep.equal({
+          sampleDuration: 10 * 1000,
+          windowSize: 4,
+          cacheThreshold: 4
+        });
+        done();
       });
     });
   });
@@ -97,7 +103,7 @@ describe('process tests', async () => {
 
     it('should break when Bitswap fails to fetch', done => {
       _.set(bitswap, 'wm.wantlist.contains', () => false);
-      bitswap.get = stubCb('GET_FAIL');
+      _.set(bitswap, 'get', sinon.fake.yields('GET_FAIL'));
 
       startrail.process({ cid, peer: mockPeer }, (err, res) => {
         expect(err).to.be.equal('GET_FAIL');
@@ -106,9 +112,13 @@ describe('process tests', async () => {
     });
 
     it('should return block when fetching from network - Provide fails', done => {
-      bitswap.get = stubCb(null, 'GET_BLOCK_SUCCESS');
+      _.set(bitswap, 'get', sinon.fake.yields(null, 'GET_BLOCK_SUCCESS'));
       _.set(bitswap, 'wm.wantlist.contains', () => false);
-      libp2p.contentRouting = { provide: stubCb('PROVIDE_ERROR') };
+      _.set(
+        libp2p,
+        'contentRouting.provide',
+        sinon.fake.yields('PROVIDE_ERROR')
+      );
 
       startrail.process({ cid, peer: mockPeer }, (err, res) => {
         expect(err).to.be.null;
@@ -118,9 +128,9 @@ describe('process tests', async () => {
     });
 
     it('should return block when fetching from network - Provide success', done => {
-      bitswap.get = stubCb(null, 'GET_BLOCK_SUCCESS');
+      _.set(bitswap, 'get', sinon.fake.yields(null, 'GET_BLOCK_SUCCESS'));
       _.set(bitswap, 'wm.wantlist.contains', () => false);
-      libp2p.contentRouting = { provide: stubCb() };
+      _.set(libp2p, 'contentRouting.provide', sinon.fake.yields());
 
       startrail.process({ cid, peer: mockPeer }, (err, res) => {
         expect(err).to.be.null;
@@ -131,7 +141,7 @@ describe('process tests', async () => {
 
     // Dependency. Needs to be the last because changes has method.
     it('should return block when BlockStore has block', done => {
-      repo.blocks.has = stubCb(null, true);
+      _.set(repo, 'blocks.has', sinon.fake.yields(null, true));
 
       startrail.process({ cid, peer: mockPeer }, (err, res) => {
         expect(err).to.be.null;
