@@ -5,7 +5,7 @@ const log = require('./util/logger');
 
 // Tumbling window popularity calculator
 class PopularityManager {
-  constructor(options) {
+  constructor(options, id) {
     this._options = options;
     this._timeout = null;
     this.samples = [];
@@ -13,7 +13,7 @@ class PopularityManager {
     this.started = false;
     this._update = this._update.bind(this);
 
-    this.id = options.id;
+    this.id = id;
   }
 
   isPopular(cid) {
@@ -77,6 +77,13 @@ class PopularityManager {
     if (!this._timeout) {
       this._timeout = setTimeout(this._update, this._options.sampleDuration);
     }
+  }
+
+  updateConfig(options) {
+    this.stop();
+    this._options = options;
+    log.trace('updated_configs %j', { id: this.id, configs: this._options });
+    this.start();
   }
 }
 

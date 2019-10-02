@@ -36,6 +36,20 @@ describe('popularity-manager tests', async () => {
     sinon.restore();
   });
 
+  it('should update config', function(done) {
+    pm.start();
+    const oldOptions = pm._options;
+    const newOptions = {
+      sampleDuration: 10 * 1000,
+      windowSize: 4,
+      cacheThreshold: 2
+    };
+    pm.updateConfig(newOptions);
+    expect(pm._options).to.be.not.equal(oldOptions);
+    expect(pm._options).to.be.equal(newOptions);
+    done();
+  });
+
   it('should execute _update for every sample window', function(done) {
     this.timeout(4000);
     const spy = sinon.spy(pm, '_update');
@@ -55,7 +69,7 @@ describe('popularity-manager tests', async () => {
     }, 2 * config.windowSize * config.sampleDuration);
   });
 
-  it('should be popular on second call - cacheThreshold: 2 ', function(done) {
+  it('should be popular on second call - cacheThreshold: 2 ', async function(done) {
     this.timeout(4000);
     pm.start();
 

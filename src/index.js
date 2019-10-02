@@ -8,14 +8,14 @@ const PopularityManager = require('./popularity-manager');
 const config = require('./config');
 
 class Startrail {
-  constructor(blockstorage, bitswap, libp2p, options) {
-    this.id = libp2p.peerInfo.id._idB58String;
+  constructor(repo, bitswap, libp2p, options) {
     this._options = _.merge(config, options);
-    this._options.popularityManager.id = this.id;
-    this.blockstorage = blockstorage;
+    this.repo = repo;
+    this.blockstorage = repo.blocks;
     this.bitswap = bitswap;
     this.libp2p = libp2p;
-    this.pm = new PopularityManager(this._options.popularityManager);
+    this.id = libp2p.peerInfo.id._idB58String;
+    this.pm = new PopularityManager(this._options.popularityManager, this.id);
     this.pm.start();
   }
 
@@ -71,6 +71,15 @@ class Startrail {
         return cb(null, result);
       }
     );
+  }
+
+  async updateConfig() {
+    const newConfigs = await this.repo.config.get('Startrail');
+    if (!_.isEqual(this._options, newConfigs)) {
+      this._options = _.merge(this._options, newConfigs);
+      this.pm.updateConfig(this._options.popularityManager);
+    }
+    return;
   }
 
   stop() {
