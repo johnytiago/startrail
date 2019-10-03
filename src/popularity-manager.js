@@ -47,6 +47,7 @@ class PopularityManager {
       Object.assign(...this.samples.slice(-this._options.windowSize))
     ).length;
     log.trace('blocks_in_cache %j', { id: this.id, num_blocks_cached });
+    log.debug('updated_configs %j', { id: this.id, configs: this._options });
 
     this._nextTimeout();
   }
@@ -54,6 +55,7 @@ class PopularityManager {
   start() {
     /* istanbul ignore next */
     if (!this.started) {
+      log.debug('updated_configs %j', { id: this.id, configs: this._options });
       this._nextTimeout();
       this.started = true;
     }
@@ -82,7 +84,7 @@ class PopularityManager {
   updateConfig(options) {
     this.stop();
     this._options = options;
-    log.trace('updated_configs %j', { id: this.id, configs: this._options });
+    log.debug('updated_configs %j', { id: this.id, configs: this._options });
     this.start();
   }
 }
