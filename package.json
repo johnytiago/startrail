@@ -30,7 +30,7 @@
     ]
   },
   "dependencies": {
-    "async": "^2.6.1",
+    "async": "^3.2.2",
     "cids": "^0.7.1",
     "debug": "^3.1.0",
     "lodash": "^4.17.15",
